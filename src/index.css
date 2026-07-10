@@ -1,0 +1,107 @@
+:root {
+  /* Brand */
+  --navy: #0a1e46;
+  --navy-2: #10285a;
+  --navy-light: #16346f;
+  --primary: #2158e0;
+  --primary-dark: #1943b8;
+  --primary-light: #eaf1ff;
+  --accent: #38bdf8;
+
+  /* Surfaces — Soft UI light */
+  --bg: #f2f5fb;
+  --bg-2: #eaeff8;
+  --surface: #ffffff;
+  --surface-alt: #f5f8fd;
+  --border: #e6ecf5;
+  --border-strong: #d8e1ef;
+
+  /* Text */
+  --text: #12203c;
+  --text-muted: #6b7a99;
+  --text-soft: #97a3bd;
+
+  /* Feedback */
+  --danger: #e11d48;
+  --success: #17a673;
+  --warning: #f59e0b;
+
+  /* Radius — softer */
+  --radius-lg: 20px;
+  --radius: 16px;
+  --radius-sm: 12px;
+
+  /* Shadows — soft & diffuse (Soft UI) */
+  --shadow-xs: 0 2px 4px rgba(20, 40, 90, 0.05);
+  --shadow-sm: 0 4px 10px rgba(20, 40, 90, 0.05);
+  --shadow: 0 12px 24px rgba(20, 40, 90, 0.07);
+  --shadow-md: 0 18px 34px rgba(20, 40, 90, 0.10);
+  --shadow-lg: 0 26px 52px rgba(15, 35, 85, 0.18);
+  --shadow-chip: 0 6px 14px rgba(33, 88, 224, 0.35);
+
+  /* Gradients (blue family) */
+  --grad-primary: linear-gradient(135deg, #2158e0 0%, #4f8bff 100%);
+  --grad-info: linear-gradient(135deg, #1a9dd9 0%, #4ac0f2 100%);
+  --grad-warn: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+  --grad-good: linear-gradient(135deg, #0ea371 0%, #34d399 100%);
+  --grad-danger: linear-gradient(135deg, #e11d48 0%, #fb7185 100%);
+  --grad-navy: linear-gradient(180deg, #0a1e46 0%, #16346f 100%);
+
+  font-family: 'Sarabun', 'Segoe UI', Tahoma, sans-serif;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(1100px 600px at 100% -5%, rgba(59, 130, 246, 0.06), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(10, 30, 70, 0.05), transparent 55%);
+  background-attachment: fixed;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 {
+  letter-spacing: -0.01em;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: 14px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c3d0e4;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a9bad6;
+  background-clip: content-box;
+}
+
+::selection {
+  background: rgba(33, 88, 224, 0.18);
+}
