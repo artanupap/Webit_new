@@ -16,7 +16,7 @@ export function exportTicketsCsv(tickets, getUserById) {
     statuses.find((s) => s.value === t.status)?.label || t.status,
     t.location,
     getUserById(t.createdBy)?.name || '',
-    t.assignedTo ? getUserById(t.assignedTo)?.name || '' : 'ยังไม่มอบหมาย',
+    t.assignedTo ? getUserById(t.assignedTo)?.name || '' : 'ยังไม่ได้รับเรื่อง',
     new Date(t.createdAt).toLocaleString('th-TH'),
     new Date(t.updatedAt).toLocaleString('th-TH'),
   ])

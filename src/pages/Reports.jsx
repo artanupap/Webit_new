@@ -282,7 +282,7 @@ export default function Reports() {
                 <td><PriorityBadge priority={t.priority} /></td>
                 <td><StatusBadge status={t.status} /></td>
                 <td>{getUserById(t.createdBy)?.name || '-'}</td>
-                <td>{t.assignedTo ? getUserById(t.assignedTo)?.name : 'ยังไม่มอบหมาย'}</td>
+                <td>{t.assignedTo ? getUserById(t.assignedTo)?.name : 'ยังไม่ได้รับเรื่อง'}</td>
                 <td>{formatDate(t.createdAt)}</td>
                 <td>{t.rating ? `${t.rating} ★` : '-'}</td>
               </tr>

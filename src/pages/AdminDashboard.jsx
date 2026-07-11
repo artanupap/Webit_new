@@ -11,7 +11,7 @@ import { exportTicketsCsv } from '../utils/csv'
 
 const QUICK_FILTERS = [
   { value: 'all', icon: 'clipboard', tone: 'primary', label: 'ทั้งหมด' },
-  { value: 'unassigned', icon: 'inbox', tone: 'warn', label: 'ยังไม่มอบหมาย' },
+  { value: 'unassigned', icon: 'inbox', tone: 'warn', label: 'ยังไม่ได้รับเรื่อง' },
   { value: 'in_progress', icon: 'wrench', tone: 'info', label: 'กำลังซ่อม' },
   { value: 'done', icon: 'check', tone: 'good', label: 'เสร็จสิ้น' },
   { value: 'urgent', icon: 'alert', tone: 'danger', label: 'ด่วนมาก (ค้าง)' },
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
             key={t.id}
             ticket={t}
             onClick={() => setSelected(t)}
-            subtitle={t.assignedTo ? `ช่าง: ${getUserById(t.assignedTo)?.name}` : 'ยังไม่มอบหมาย'}
+            subtitle={t.assignedTo ? `ช่าง: ${getUserById(t.assignedTo)?.name}` : 'ยังไม่ได้รับเรื่อง'}
           />
         ))}
       </div>
