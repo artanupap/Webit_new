@@ -15,6 +15,12 @@ async function request(path, options = {}) {
 export const api = {
   login: (username, password) =>
     request('/login', { method: 'POST', body: JSON.stringify({ username, password }) }),
+  register: (data) => request('/register', { method: 'POST', body: JSON.stringify(data) }),
+  getRegistrations: () => request('/registrations'),
+  approveRegistration: (id, byUserId) =>
+    request(`/registrations/${id}/approve`, { method: 'PATCH', body: JSON.stringify({ byUserId }) }),
+  rejectRegistration: (id, byUserId, reason) =>
+    request(`/registrations/${id}/reject`, { method: 'PATCH', body: JSON.stringify({ byUserId, reason }) }),
   getUsers: () => request('/users'),
   addUser: (user) => request('/users', { method: 'POST', body: JSON.stringify(user) }),
   updateUser: (id, user) => request(`/users/${id}`, { method: 'PUT', body: JSON.stringify(user) }),

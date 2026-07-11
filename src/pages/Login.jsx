@@ -1,13 +1,7 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Icon from '../components/Icon'
-
-const roleHints = [
-  { role: 'ผู้ใช้งานทั่วไป', username: 'user1', password: 'user123', icon: 'users' },
-  { role: 'ช่างเทคนิค', username: 'tech1', password: 'tech123', icon: 'wrench' },
-  { role: 'ผู้บริหาร (Admin)', username: 'admin', password: 'admin123', icon: 'chart' },
-]
 
 const highlights = [
   { icon: 'inbox', title: 'แจ้งซ่อมได้ทันที', desc: 'ส่งคำร้องพร้อมระบุความเร่งด่วนและสถานที่ในไม่กี่คลิก' },
@@ -33,12 +27,6 @@ export default function Login() {
       return
     }
     navigate('/')
-  }
-
-  function fillDemo(h) {
-    setUsername(h.username)
-    setPassword(h.password)
-    setError('')
   }
 
   return (
@@ -73,38 +61,13 @@ export default function Login() {
               ))}
             </ul>
 
-            <div className="login-mock-card">
-              <div className="login-mock-head">
-                <span>ภาพรวมวันนี้</span>
-                <span className="login-mock-live">● LIVE</span>
+            <div className="login-cta-card">
+              <div className="login-cta-icon"><Icon name="users" size={20} /></div>
+              <div className="login-cta-text">
+                <strong>ยังไม่มีบัญชีใช่ไหม?</strong>
+                <span>สมัครใช้งานได้ทันที ระบบจะส่งคำขอให้ผู้บริหารตรวจสอบและอนุมัติก่อนเข้าใช้งาน</span>
               </div>
-              <div className="login-mock-stats">
-                <div className="login-mock-stat">
-                  <span className="login-mock-dot dot-blue" />
-                  <strong>24</strong>
-                  <small>ตั๋วทั้งหมด</small>
-                </div>
-                <div className="login-mock-stat">
-                  <span className="login-mock-dot dot-green" />
-                  <strong>18</strong>
-                  <small>เสร็จสิ้น</small>
-                </div>
-                <div className="login-mock-stat">
-                  <span className="login-mock-dot dot-amber" />
-                  <strong>4.8</strong>
-                  <small>ความพึงพอใจ</small>
-                </div>
-              </div>
-              <svg className="login-mock-chart" viewBox="0 0 220 46" preserveAspectRatio="none">
-                <polyline
-                  points="0,36 30,30 55,34 80,18 110,24 140,10 170,16 200,6 220,12"
-                  fill="none"
-                  stroke="#7db8ff"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Link to="/register" className="btn btn-primary login-cta-btn">สมัครใช้งาน</Link>
             </div>
           </div>
         </div>
@@ -140,19 +103,9 @@ export default function Login() {
               </button>
             </form>
 
-            <div className="login-divider"><span>หรือทดลองใช้งานด่วน</span></div>
-
-            <div className="login-demo-grid">
-              {roleHints.map((h) => (
-                <button key={h.role} type="button" className="login-demo-btn" onClick={() => fillDemo(h)}>
-                  <span className="login-demo-icon"><Icon name={h.icon} size={16} /></span>
-                  <span className="login-demo-text">
-                    <strong>{h.role}</strong>
-                    <small>{h.username} / {h.password}</small>
-                  </span>
-                </button>
-              ))}
-            </div>
+            <p className="login-register-hint">
+              ยังไม่มีบัญชี? <Link to="/register">สมัครใช้งาน</Link>
+            </p>
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [users, setUsers] = useState([])
   const [departments, setDepartments] = useState([])
+  const [registrations, setRegistrations] = useState([])
   const [currentUser, setCurrentUser] = useState(() => {
     const raw = localStorage.getItem('it_support_current_user')
     return raw ? JSON.parse(raw) : null
@@ -19,10 +20,18 @@ export function AuthProvider({ children }) {
     api.getDepartments().then(setDepartments).catch(() => {})
   }, [])
 
+  const refreshRegistrations = useCallback(() => {
+    api.getRegistrations().then(setRegistrations).catch(() => {})
+  }, [])
+
   useEffect(() => {
     refreshUsers()
     refreshDepartments()
   }, [refreshUsers, refreshDepartments])
+
+  useEffect(() => {
+    if (currentUser?.role === 'admin') refreshRegistrations()
+  }, [currentUser, refreshRegistrations])
 
   useEffect(() => {
     if (currentUser) localStorage.setItem('it_support_current_user', JSON.stringify(currentUser))
@@ -89,6 +98,23 @@ export function AuthProvider({ children }) {
     setDepartments((prev) => prev.filter((d) => d.company !== name))
   }
 
+  async function register(data) {
+    return api.register(data)
+  }
+
+  async function approveRegistration(id) {
+    const updated = await api.approveRegistration(id, currentUser.id)
+    setRegistrations((prev) => prev.map((r) => (r.id === id ? updated : r)))
+    refreshUsers()
+    return updated
+  }
+
+  async function rejectRegistration(id, reason) {
+    const updated = await api.rejectRegistration(id, currentUser.id, reason)
+    setRegistrations((prev) => prev.map((r) => (r.id === id ? updated : r)))
+    return updated
+  }
+
   function getUserById(id) {
     return users.find((u) => u.id === id)
   }
@@ -105,9 +131,13 @@ export function AuthProvider({ children }) {
         users,
         technicians,
         departments,
+        registrations,
         currentUser,
         login,
         logout,
+        register,
+        approveRegistration,
+        rejectRegistration,
         addUser,
         updateUser,
         deleteUser,

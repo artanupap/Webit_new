@@ -14,9 +14,10 @@ function initials(name = '') {
 }
 
 export default function Layout({ children }) {
-  const { currentUser, logout } = useAuth()
+  const { currentUser, logout, registrations } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const pendingCount = registrations.filter((r) => r.status === 'pending').length
 
   function handleLogout() {
     logout()
@@ -34,6 +35,7 @@ export default function Layout({ children }) {
     navItems.push({ to: '/', label: 'ภาพรวมทั้งหมด', short: 'ภาพรวม', icon: 'dashboard' })
     navItems.push({ to: '/users', label: 'จัดการผู้ใช้', short: 'ผู้ใช้', icon: 'users' })
     navItems.push({ to: '/departments', label: 'จัดการบริษัท/แผนก', short: 'แผนก', icon: 'building' })
+    navItems.push({ to: '/registrations', label: 'คำขอสมัครสมาชิก', short: 'คำขอ', icon: 'inbox', badge: pendingCount })
     navItems.push({ to: '/reports', label: 'รายงาน', short: 'รายงาน', icon: 'chart' })
   }
 
@@ -59,6 +61,7 @@ export default function Layout({ children }) {
             >
               <span className="sidebar-icon-chip"><Icon name={item.icon} size={17} /></span>
               {item.label}
+              {!!item.badge && <span className="sidebar-badge">{item.badge}</span>}
             </NavLink>
           ))}
         </nav>
@@ -105,7 +108,10 @@ export default function Layout({ children }) {
             end
             className={({ isActive }) => (isActive ? 'bottom-nav-link active' : 'bottom-nav-link')}
           >
-            <span className="bottom-nav-icon"><Icon name={item.icon} size={20} /></span>
+            <span className="bottom-nav-icon">
+              <Icon name={item.icon} size={20} />
+              {!!item.badge && <span className="bottom-nav-badge">{item.badge}</span>}
+            </span>
             <span className="bottom-nav-label">{item.short}</span>
           </NavLink>
         ))}

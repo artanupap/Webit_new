@@ -60,6 +60,19 @@ CREATE TABLE IF NOT EXISTS ticket_comments (
   by_user TEXT NOT NULL REFERENCES users(id),
   text TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS registration_requests (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  username TEXT NOT NULL,
+  password TEXT NOT NULL,
+  department_id TEXT REFERENCES departments(id),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  created_at INTEGER NOT NULL,
+  reviewed_at INTEGER,
+  reviewed_by TEXT REFERENCES users(id),
+  reject_reason TEXT
+);
 `)
 
 // Migrate existing databases created before these columns/tables existed.

@@ -5,11 +5,13 @@ import { ToastProvider } from './context/ToastContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import UserDashboard from './pages/UserDashboard'
 import TechDashboard from './pages/TechDashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import UsersAdmin from './pages/UsersAdmin'
 import DepartmentsAdmin from './pages/DepartmentsAdmin'
+import RegistrationsAdmin from './pages/RegistrationsAdmin'
 import Reports from './pages/Reports'
 import './App.css'
 
@@ -24,6 +26,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route
         path="/"
         element={
@@ -50,6 +53,16 @@ function AppRoutes() {
           <ProtectedRoute roles={['admin']}>
             <Layout>
               <DepartmentsAdmin />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/registrations"
+        element={
+          <ProtectedRoute roles={['admin']}>
+            <Layout>
+              <RegistrationsAdmin />
             </Layout>
           </ProtectedRoute>
         }

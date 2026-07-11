@@ -1,6 +1,10 @@
 import express from 'express'
 import cors from 'cors'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import db, { SLA_HOURS } from './db.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const app = express()
 app.use(cors())
@@ -68,12 +72,90 @@ function allTicketsFull() {
   return ids.map(getTicketFull)
 }
 
+function registrationPublic(r) {
+  if (!r) return null
+  const { password, department_id, reviewed_by, ...rest } = r
+  return {
+    id: rest.id,
+    name: rest.name,
+    username: rest.username,
+    status: rest.status,
+    createdAt: rest.created_at,
+    reviewedAt: rest.reviewed_at,
+    rejectReason: rest.reject_reason,
+    department: getDepartment(department_id),
+    reviewedBy: reviewed_by ? userPublic(db.prepare('SELECT * FROM users WHERE id = ?').get(reviewed_by)) : null,
+  }
+}
+
 // ---------- Auth ----------
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body
   const user = db.prepare('SELECT * FROM users WHERE username = ? AND password = ?').get(username, password)
   if (!user) return res.status(401).json({ ok: false, message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' })
   res.json({ ok: true, user: userPublic(user) })
+})
+
+// ---------- Self-registration ----------
+app.post('/api/register', (req, res) => {
+  const { name, username, password, departmentId } = req.body
+  if (!name || !username || !password || !departmentId) {
+    return res.status(400).json({ ok: false, message: 'กรุณากรอกข้อมูลให้ครบถ้วน' })
+  }
+  const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(username)
+  if (existingUser) return res.status(409).json({ ok: false, message: 'ชื่อผู้ใช้นี้มีอยู่แล้ว' })
+  const pendingDupe = db
+    .prepare("SELECT id FROM registration_requests WHERE username = ? AND status = 'pending'")
+    .get(username)
+  if (pendingDupe) return res.status(409).json({ ok: false, message: 'ชื่อผู้ใช้นี้มีคำขอสมัครที่รออนุมัติอยู่แล้ว' })
+
+  const id = 'reg-' + Date.now()
+  db.prepare(
+    'INSERT INTO registration_requests (id, name, username, password, department_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(id, name, username, password, departmentId, 'pending', Date.now())
+  res.status(201).json(registrationPublic(db.prepare('SELECT * FROM registration_requests WHERE id = ?').get(id)))
+})
+
+app.get('/api/registrations', (_req, res) => {
+  const rows = db.prepare('SELECT * FROM registration_requests ORDER BY created_at DESC').all()
+  res.json(rows.map(registrationPublic))
+})
+
+app.patch('/api/registrations/:id/approve', (req, res) => {
+  const { id } = req.params
+  const { byUserId } = req.body
+  const request = db.prepare('SELECT * FROM registration_requests WHERE id = ?').get(id)
+  if (!request) return res.status(404).json({ ok: false, message: 'ไม่พบคำขอสมัครนี้' })
+  if (request.status !== 'pending') return res.status(400).json({ ok: false, message: 'คำขอนี้ถูกดำเนินการไปแล้ว' })
+
+  const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(request.username)
+  if (existingUser) return res.status(409).json({ ok: false, message: 'ชื่อผู้ใช้นี้มีคนอื่นใช้ไปแล้ว' })
+
+  const now = Date.now()
+  const userId = 'u-' + now
+  const approve = db.transaction(() => {
+    db.prepare(
+      'INSERT INTO users (id, username, password, name, role, department_id) VALUES (?, ?, ?, ?, ?, ?)'
+    ).run(userId, request.username, request.password, request.name, 'user', request.department_id)
+    db.prepare(
+      "UPDATE registration_requests SET status = 'approved', reviewed_at = ?, reviewed_by = ? WHERE id = ?"
+    ).run(now, byUserId, id)
+  })
+  approve()
+  res.json(registrationPublic(db.prepare('SELECT * FROM registration_requests WHERE id = ?').get(id)))
+})
+
+app.patch('/api/registrations/:id/reject', (req, res) => {
+  const { id } = req.params
+  const { byUserId, reason } = req.body
+  const request = db.prepare('SELECT * FROM registration_requests WHERE id = ?').get(id)
+  if (!request) return res.status(404).json({ ok: false, message: 'ไม่พบคำขอสมัครนี้' })
+  if (request.status !== 'pending') return res.status(400).json({ ok: false, message: 'คำขอนี้ถูกดำเนินการไปแล้ว' })
+
+  db.prepare(
+    "UPDATE registration_requests SET status = 'rejected', reviewed_at = ?, reviewed_by = ?, reject_reason = ? WHERE id = ?"
+  ).run(Date.now(), byUserId, reason || null, id)
+  res.json(registrationPublic(db.prepare('SELECT * FROM registration_requests WHERE id = ?').get(id)))
 })
 
 // ---------- Departments ----------
@@ -318,6 +400,11 @@ app.post('/api/tickets/:id/comments', (req, res) => {
   res.json(getTicketFull(id))
 })
 
-app.listen(PORT, () => {
-  console.log(`IT Support API listening on http://localhost:${PORT}`)
+app.use(express.static(path.join(__dirname, '../dist')))
+app.get(/^(?!\/api).*/, (_req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'))
+})
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`IT Support API listening on port ${PORT}`)
 })
