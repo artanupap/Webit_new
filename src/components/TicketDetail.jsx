@@ -3,7 +3,6 @@ import { StatusBadge, PriorityBadge } from './Badges'
 import { formatDate } from './TicketCard'
 import StarRating from './StarRating'
 import SignaturePad from './SignaturePad'
-import { statuses } from '../data/seed'
 import { getSlaInfo } from '../utils/sla'
 import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
@@ -20,15 +19,22 @@ export default function TicketDetail({ ticket, showStatusControl }) {
   const sla = getSlaInfo(ticket)
   const canRate = ticket.status === 'done' && ticket.createdBy === currentUser.id
 
-  async function handleStatusChange(e) {
-    const value = e.target.value
-    const label = statuses.find((s) => s.value === value)?.label
+  async function handleStartProgress() {
     try {
-      if (!ticket.assignedTo && currentUser.role === 'technician') {
+      if (!ticket.assignedTo) {
         await assignTicket(ticket.id, currentUser.id, currentUser.id, currentUser.name)
       }
-      await setStatus(ticket.id, value, currentUser.id, label)
-      showToast(`อัปเดตสถานะเป็น "${label}" แล้ว`, 'success')
+      await setStatus(ticket.id, 'in_progress', currentUser.id, 'กำลังดำเนินการ')
+      showToast('อัปเดตสถานะเป็น "กำลังดำเนินการ" แล้ว', 'success')
+    } catch (err) {
+      showToast(err.message, 'error')
+    }
+  }
+
+  async function handleCancel() {
+    try {
+      await setStatus(ticket.id, 'cancelled', currentUser.id, 'ยกเลิก')
+      showToast('ยกเลิกงานแล้ว', 'success')
     } catch (err) {
       showToast(err.message, 'error')
     }
@@ -66,9 +72,6 @@ export default function TicketDetail({ ticket, showStatusControl }) {
 
   async function handleCloseJob() {
     try {
-      if (!ticket.assignedTo && currentUser.role === 'technician') {
-        await assignTicket(ticket.id, currentUser.id, currentUser.id, currentUser.name)
-      }
       await setStatus(ticket.id, 'done', currentUser.id, 'ซ่อมเสร็จสิ้น')
       showToast('ปิดงานเรียบร้อยแล้ว', 'success')
     } catch (err) {
@@ -110,31 +113,27 @@ export default function TicketDetail({ ticket, showStatusControl }) {
         <div><label>สถานที่</label><span>{ticket.location}</span></div>
         <div><label>หมวดหมู่</label><span>{ticket.category}</span></div>
         <div><label>เบอร์ภายใน / ภายนอก</label><span>{ticket.department ? `${ticket.department.phoneInternal || '-'} / ${ticket.department.phoneExternal || '-'}` : '-'}</span></div>
-        <div><label>ผู้รับผิดชอบ</label><span>{tech ? tech.name : 'ยังไม่ได้มอบหมาย'}</span></div>
+        <div><label>ผู้รับผิดชอบ</label><span>{tech ? tech.name : 'ยังไม่ได้รับเรื่อง'}</span></div>
         <div><label>วันที่แจ้ง</label><span>{formatDate(ticket.createdAt)}</span></div>
         <div><label>อัปเดตล่าสุด</label><span>{formatDate(ticket.updatedAt)}</span></div>
       </div>
 
-      {showStatusControl && ticket.status !== 'done' && (
-        <div className="form-row">
-          <label>อัปเดตสถานะงาน</label>
-          <select value={ticket.status} onChange={handleStatusChange}>
-            {statuses.filter((s) => s.value !== 'done').map((s) => (
-              <option key={s.value} value={s.value}>{s.label}</option>
-            ))}
-          </select>
+      {showStatusControl && (ticket.status === 'new' || ticket.status === 'assigned') && (
+        <div className="signature-actions">
+          <button type="button" className="btn btn-primary" onClick={handleStartProgress}>เริ่มดำเนินการ</button>
+          <button type="button" className="btn btn-danger" onClick={handleCancel}>ยกเลิกงาน</button>
         </div>
       )}
 
-      {showStatusControl && ticket.status !== 'done' && ticket.status !== 'cancelled' && (
+      {showStatusControl && ticket.status === 'in_progress' && (
         <div className="ticket-detail-section">
           <h4>ลายเซ็นยืนยันปิดงาน</h4>
-          <p className="signature-hint">ให้ผู้แจ้งเซ็นชื่อยืนยันในช่องด้านล่าง จากนั้นกดปิดงาน</p>
+          <p className="signature-hint">ให้ผู้แจ้งเซ็นชื่อยืนยันในช่องด้านล่าง จากนั้นกดจบงาน</p>
           {ticket.signature ? (
             <>
               <img src={ticket.signature} alt="ลายเซ็นผู้แจ้ง" className="signature-preview" />
               <div className="signature-actions">
-                <button type="button" className="btn btn-primary" onClick={handleCloseJob}>ปิดงาน</button>
+                <button type="button" className="btn btn-primary" onClick={handleCloseJob}>จบงาน</button>
               </div>
             </>
           ) : (
