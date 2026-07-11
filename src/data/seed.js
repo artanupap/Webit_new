@@ -18,7 +18,7 @@ export const priorities = [
 
 export const statuses = [
   { value: 'new', label: 'แจ้งใหม่', color: '#64748b' },
-  { value: 'assigned', label: 'มอบหมายแล้ว', color: '#3b82f6' },
+  { value: 'assigned', label: 'รับเรื่องแล้ว', color: '#3b82f6' },
   { value: 'in_progress', label: 'กำลังดำเนินการ', color: '#eab308' },
   { value: 'done', label: 'ซ่อมเสร็จสิ้น', color: '#22c55e' },
   { value: 'cancelled', label: 'ยกเลิก', color: '#ef4444' },
